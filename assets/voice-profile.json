@@ -1,0 +1,73 @@
+{
+  "version": "2.1.0", "name": "ray-voice",
+  "description": "Ray 語氣的機器可讀側寫：門檻、詞彙庫、禁用清單。由 scripts/check-voice.mjs 讀取；人類與 AI 讀 SKILL.md 與 references/zh-tw.md。",
+  "rules": [
+    { "id": "simplified-han", "severity": "error", "type": "simplified", "message": "出現簡體字", "hint": "整份改成繁體（台灣）用字" },
+
+    { "id": "cn-term", "severity": "error", "type": "terms", "message": "大陸用語", "hint": "改台灣用語；語境陷阱與完整對照表出處見 references/zh-tw.md",
+      "terms": {
+        "緩存": "快取", "調用": "呼叫", "默認": "預設", "接口": "介面", "數組": "陣列", "字符串": "字串", "字符(?!串)": "字元", "變量": "變數", "內存": "記憶體", "網絡": "網路", "視頻": "影片", "音頻": "音訊", "遍歷": "走訪", "遞歸": "遞迴", "異步": "非同步", "加載": "載入", "刷新": "重新整理", "登錄": "登入", "創建": "建立", "回調": "回呼", "線程": "執行緒", "進程": "行程", "服務器": "伺服器", "軟件": "軟體", "硬件": "硬體", "屏幕": "螢幕", "鏈接": "連結", "內鏈": "內部連結", "外鏈": "外部連結", "磁盤": "磁碟", "字節": "位元組", "源站": "來源伺服器", "回源": "回伺服器", "短信": "簡訊", "調試": "除錯", "激活": "啟用", "拷貝": "複製", "光標": "游標", "自定義": "自訂", "定制化": "客製化", "常量": "常數", "布爾": "布林", "註釋": "註解", "內置": "內建", "構建": "建構", "菜單": "選單", "模板": "範本", "令牌": "權杖", "教程": "教學", "窗口": "視窗", "通配符": "萬用字元", "枚舉": "列舉", "導出": "匯出", "拖拽": "拖曳", "分布式": "分散式", "死鎖": "死結", "剪貼板": "剪貼簿", "命令行": "命令列", "控件": "控制項", "克隆": "複製", "帶寬": "頻寬", "花括號": "大括號", "方括號": "中括號", "校驗和": "總和檢查碼", "通信": "通訊", "文檔": "文件", "正則": "正規", "驅動器": "磁碟機", "電子郵箱": "電子信箱", "屏蔽": "封鎖", "刻錄": "燒錄", "證書": "憑證", "雲計算": "雲端運算", "系統托盤": "系統匣", "選項卡": "索引標籤", "充值": "儲值", "(?<!股票|國家|驗證|錯誤|區域|郵遞|顏色|色彩|授權|折扣|優惠|地區)代碼": "程式碼",
+        "(?<!終端)用戶(?!端)": "使用者"
+      } },
+
+    { "id": "cn-term-soft", "severity": "warning", "type": "terms", "message": "可能是大陸用語（看語境）", "hint": "看上下文再決定；語境陷阱見 references/zh-tw.md",
+      "terms": {
+        "訪問": "存取", "排查": "追查／檢查", "導入": "匯入（import 時；導入系統是正常台灣用語）", "文本": "文字", "賦值": "指派", "兼容": "相容", "斷點": "中斷點", "社區": "社群", "對話框": "對話方塊", "算法": "演算法", "回車": "Enter 鍵", "設備": "裝置", "高級": "進階", "擴展": "擴充", "視圖": "檢視", "(?<!大|量化|統計|實驗|市場|銷售)數據(?!庫|分析|化)": "資料"
+      } },
+
+    { "id": "never-phrase", "severity": "error", "type": "phrases", "message": "Ray 從來不用的 AI 腔",
+      "hint": "換成口語講法（那麼…／前面有提到…／所以我們可以知道一件事情…）",
+      "phrases": ["在當今", "在這個快速", "在數位時代", "在本文中", "值得注意的是", "綜上所述",
+                  "總而言之", "總的來說", "總結來說", "綜合來看", "由此可見", "不僅如此",
+                  "眾所周知", "毫無疑問", "不容忽視", "至關重要", "不可或缺", "劃時代",
+                  "革命性", "賦能", "顯著提升", "極大地", "大幅度地", "深度剖析", "全面解析",
+                  "帶你一次看懂", "一站式", "如虎添翼", "畫龍點睛", "脫穎而出", "無論你是",
+                  "希望本文", "本文旨在", "其次，", "再者，", "第二步，", "讓我們深入"] },
+
+    { "id": "reduce-phrase", "severity": "warning", "type": "phrases", "message": "AI 腔，Ray 近年幾乎不用了",
+      "hint": "用口語轉場代替（那麼…／接下來我們要來…，也就是…／看到這邊你可能會想說…）",
+      "phrases": ["讓我們一起來看看", "接下來讓我們", "現在讓我們", "首先我們需要",
+                  "本篇文章將", "本文介紹了", "想必大家都", "相信很多人都",
+                  "值得一提的是", "與此同時", "息息相關", "事半功倍", "應運而生", "全方位"] },
+
+    { "id": "man-char", "severity": "error", "type": "swap", "message": "一律寫「滿」不寫「蠻」",
+      "swaps": { "蠻": "滿" } },
+
+    { "id": "prefer-form", "severity": "warning", "type": "swap", "message": "Ray 的慣用寫法不是這個",
+      "swaps": { "簡單來說": "簡單來講", "舉例來說": "舉例來講", "但是": "可是", "喔。": "唷。", "喔～": "唷～", "筆者": "我" } },
+
+    { "id": "emoji", "severity": "error", "type": "emoji", "message": "不用 emoji",
+      "hint": "情緒用括號吐槽、刪除線、語尾詞、QQ／XD 承擔；commit 訊息的 type emoji 是另一套規則" },
+
+    { "id": "cjk-latin-space", "severity": "warning", "type": "spacing", "message": "中文與英數之間要空一格" },
+
+    { "id": "halfwidth-punct", "severity": "warning", "type": "halfwidth", "message": "中文句子裡出現半形標點", "hint": "改全形，，。？！" },
+
+    { "id": "quote-density", "severity": "warning", "type": "density", "pattern": "「", "per_10k_above": 140,
+      "message": "「」用太兇 — 這是最容易被讀出 AI 味的地方", "hint": "只留引用的話、錯誤訊息、UI 按鈕字串、術語首現；描述性文字不要框" },
+
+    { "id": "bold-density", "severity": "warning", "type": "density", "pattern": "**", "per_10k_above": 140, "counts_pairs": true,
+      "message": "粗體太多，整篇會變成螢光筆", "hint": "粗體只留給：一定要照抄的值、安全警告、要記住的規則" },
+
+    { "id": "exclamation-density", "severity": "warning", "type": "density", "pattern": "！", "per_10k_above": 60,
+      "message": "驚嘆號密度過高", "hint": "興奮靠語尾詞（囉～／哩～）跟誇飾，不靠驚嘆號" },
+
+    { "id": "long-sentence", "severity": "warning", "type": "sentence-len",
+      "cjk_above": 150, "message": "句子過長" },
+
+    { "id": "fat-paragraph", "severity": "warning", "type": "paragraph",
+      "sentences_above": 4,
+      "message": "段落太厚 — Ray 的常態是一句一段", "hint": "拆成多段，段落間空一行。長句可以留，厚段落要拆" },
+
+    { "id": "first-person", "severity": "warning", "type": "first-person",
+      "per_10k_below": 110,
+      "message": "第一／第二人稱密度太低，讀起來像說明書", "hint": "把「可以透過 X 來 Y」改成「你只要 X 就好」「我這邊是直接用 X」" },
+
+    { "id": "heading-depth", "severity": "warning", "type": "heading-depth",
+      "max": 3, "message": "標題只用到 h3" },
+
+    { "id": "code-fence-lang", "severity": "warning", "type": "fence-lang", "mode": "doc", "message": "程式碼區塊沒標語言", "hint": "標上 js／bash／yaml／txt 等" },
+
+    { "id": "table-sep-space", "severity": "warning", "type": "table-sep", "mode": "doc", "message": "表格分隔線要有空格：`| ------ |`" }
+  ]
+}
