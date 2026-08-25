@@ -26,18 +26,46 @@
 
 ## 安裝
 
+最快的是用 `npx skills add` 一行裝完，想自己掌控檔案放哪就手動 clone。三種裝法挑一種即可。
+
+### 裝法一：npx skills add（最快）
+
+```bash
+# 全域，所有專案都吃得到
+npx skills add hsiangfeng/Ray-Voice-SKILL -g -a claude-code -a codex
+
+# 只裝在目前這個專案
+npx skills add hsiangfeng/Ray-Voice-SKILL -a claude-code -a codex
+```
+
+`skills` 是 vercel-labs 出的 skill 安裝工具，它會自己 clone、自己放到對的位置。實際檔案落在 `~/.agents/skills/ray-voice`（專案版是 `./.agents/skills/ray-voice`），Claude Code 那邊幫你 symlink 過去，Codex 本來就讀得到 `.agents/skills`，所以一次裝兩邊都通。
+
+專案版還會多產一個 `skills-lock.json`，記著這個 skill 是從哪抓的。你把它一起 commit，同事 clone 完跑 `npx skills experimental_install` 就能還原同一份。
+
+這邊有個雷點：`-a` 不吃逗號串。寫成 `-a claude-code,codex` 會被當成一個 agent 名稱然後噴 Invalid agents，要拆成兩個 `-a` 才對。
+
+常用指令：
+
+| 指令 | 作用 |
+| ------ | ------ |
+| `npx skills add <repo> -l` | 只列出 repo 裡有哪些 skill，不安裝 |
+| `npx skills list -g` | 看全域裝了哪些 |
+| `npx skills update -g` | 更新到最新版 |
+| `npx skills remove -g -s ray-voice` | 移除 |
+| `--copy` | 用複製取代 symlink |
+
+### 裝法二：clone 一份，兩邊都 symlink
+
+手動裝的好處是它就是一個普通的 git repo，你可以自己改內容、自己決定什麼時候 pull、改壞了用 git 救回來。想拿它當底改成自己的語氣，走這條。
+
 Claude Code 跟 Codex 的 skill 格式一模一樣，都是一個資料夾裡面放 `SKILL.md`，差別只在放的位置：
 
 | 工具 | 全域位置 | 專案內位置 |
 | ------ | ------ | ------ |
 | Claude Code | `~/.claude/skills/ray-voice/` | `<專案>/.claude/skills/ray-voice/` |
-| Codex | `~/.codex/skills/ray-voice/` | 目前建議用全域 |
+| Codex | `~/.codex/skills/ray-voice/` | `<專案>/.agents/skills/ray-voice/` |
 
-所以你有兩種裝法，挑一種就好。
-
-### 裝法一：clone 一份，兩邊都 symlink（推薦）
-
-好處是只有一份原始檔，之後 `git pull` 一次，Claude 跟 Codex 同時更新。
+只有一份原始檔，之後 `git pull` 一次，Claude 跟 Codex 同時更新。
 
 ```bash
 # 1. 抓一份回來，放哪都可以，這邊放 ~/GitHub
@@ -54,7 +82,7 @@ ln -sfn ~/GitHub/Ray-Voice-SKILL ~/.codex/skills/ray-voice
 
 只用其中一個工具的話，第 2 步或第 3 步跳過即可。
 
-### 裝法二：直接 clone 進 skills 資料夾
+### 裝法三：直接 clone 進 skills 資料夾
 
 不想搞 symlink 就這樣，缺點是更新要各自 pull 一次。
 
@@ -68,11 +96,18 @@ git clone https://github.com/hsiangfeng/Ray-Voice-SKILL.git ~/.codex/skills/ray-
 
 ### 只想在某一個專案生效
 
-Claude Code 讀專案內的 `.claude/skills/`，所以進到那個專案下面裝就好，不會污染你其他專案：
+最省事的是裝法一去掉 `-g`，它會自己處理兩邊的路徑：
 
 ```bash
-mkdir -p .claude/skills
-git clone https://github.com/hsiangfeng/Ray-Voice-SKILL.git .claude/skills/ray-voice
+npx skills add hsiangfeng/Ray-Voice-SKILL -a claude-code -a codex
+```
+
+想手動裝就自己放。Claude Code 讀專案內的 `.claude/skills/`，Codex 讀 `.agents/skills/`：
+
+```bash
+mkdir -p .claude/skills .agents/skills
+git clone https://github.com/hsiangfeng/Ray-Voice-SKILL.git .agents/skills/ray-voice
+ln -sfn ../../.agents/skills/ray-voice .claude/skills/ray-voice
 ```
 
 要把它一起進版控的話記得處理 `.gitignore`，不然 clone 下來的 `.git` 會變成 submodule 的麻煩。最省事的做法是 clone 完把裡面的 `.git` 刪掉，當一般檔案 commit 進去。
@@ -103,8 +138,12 @@ codex debug prompt-input | grep ray-voice
 兩個都沒反應的話，先檢查路徑對不對、資料夾裡面有沒有 `SKILL.md`：
 
 ```bash
-ls -la ~/.claude/skills/ray-voice/SKILL.md ~/.codex/skills/ray-voice/SKILL.md
+ls -la ~/.claude/skills/ray-voice/SKILL.md \
+      ~/.codex/skills/ray-voice/SKILL.md \
+      ~/.agents/skills/ray-voice/SKILL.md
 ```
+
+用 `npx skills add` 裝的會出現在 `~/.agents/` 那條，手動裝的看你放哪，三條有一條在就對了。
 
 ---
 
@@ -246,13 +285,20 @@ Ray-Voice-SKILL/
 
 ## 更新
 
-裝法一（symlink）：
+裝法一（npx skills add）：
+
+```bash
+npx skills update -g              # 全域
+npx skills update                 # 專案內
+```
+
+裝法二（symlink）：
 
 ```bash
 git -C ~/GitHub/Ray-Voice-SKILL pull
 ```
 
-裝法二（直接 clone）：
+裝法三（直接 clone）：
 
 ```bash
 git -C ~/.claude/skills/ray-voice pull
@@ -264,6 +310,14 @@ git -C ~/.codex/skills/ray-voice pull
 ---
 
 ## 移除
+
+用 `npx skills add` 裝的，用它自己的指令收乾淨：
+
+```bash
+npx skills remove -g -s ray-voice
+```
+
+手動裝的自己刪：
 
 ```bash
 rm ~/.claude/skills/ray-voice    # symlink 用 rm
